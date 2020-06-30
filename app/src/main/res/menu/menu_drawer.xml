@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        //only one item at a time
     <item
     android:id="@+id/dashboard"
     android:title="@string/dashboard"
@@ -16,4 +18,5 @@
         android:id="@+id/aboutApp"
         android:title="@string/about_app"
         android:icon="@drawable/ic_about_app"/>
+    </group>
 </menu>

@@ -2,6 +2,7 @@ package com.karam.bookhub
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.MenuInflater
 import android.view.MenuItem
 import android.widget.FrameLayout
 import android.widget.Toast
@@ -20,6 +21,8 @@ class MainActivity : AppCompatActivity() {
     lateinit var frameLayout: FrameLayout
     lateinit var navigationView: NavigationView
 
+    var previousMenuItem:MenuItem?=null;
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -30,6 +33,8 @@ class MainActivity : AppCompatActivity() {
         frameLayout=findViewById(R.id.frameLayout)
         navigationView=findViewById(R.id.navigationView)
         setUpToolBar()
+
+        openDashboard()//to open dashboard by default
 
         val actionBarDrawerToggle=ActionBarDrawerToggle(
             this@MainActivity ,
@@ -43,16 +48,42 @@ class MainActivity : AppCompatActivity() {
 
         //On click listner on each navigation vier items
         navigationView.setNavigationItemSelectedListener {
+            if (previousMenuItem!=null){
+                previousMenuItem?.isChecked=false
+
+            }
+            it.isCheckable=true
+            it.isChecked=true
+            previousMenuItem=it
+
             when(it.itemId){
                 R.id.dashboard->{
-                    supportFragmentManager.beginTransaction()
-                        .replace(R.id.frameLayout,DashboardFragment())
-                        .commit()
+                    openDashboard()
                     drawerLayout.closeDrawers()
                 }
-                R.id.favourites->{Toast.makeText(this@MainActivity,"Favourites Clicked",Toast.LENGTH_SHORT).show()}
-                R.id.profile->{Toast.makeText(this@MainActivity,"Profile Clicked",Toast.LENGTH_SHORT).show()}
-                R.id.aboutApp->{Toast.makeText(this@MainActivity,"AboutApp Clicked",Toast.LENGTH_SHORT).show()}
+                R.id.favourites->{
+                    supportFragmentManager.beginTransaction()
+                        .replace(R.id.frameLayout,FauvouriesFragment())
+                        .commit()
+                    supportActionBar?.title="Favourites"
+                    drawerLayout.closeDrawers()
+
+                }
+                R.id.profile->{
+                    supportFragmentManager.beginTransaction()
+                        .replace(R.id.frameLayout,ProfileFragment())
+                        .commit()
+                    supportActionBar?.title="Profile"
+                    drawerLayout.closeDrawers()
+
+                }
+                R.id.aboutApp->{
+                    supportFragmentManager.beginTransaction()
+                        .replace(R.id.frameLayout,AboutAppFragment())
+                        .commit()
+                    supportActionBar?.title="About App"
+                    drawerLayout.closeDrawers()
+                }
             }
             return@setNavigationItemSelectedListener true
         }
@@ -73,5 +104,24 @@ class MainActivity : AppCompatActivity() {
             drawerLayout.openDrawer(GravityCompat.START)
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    //functionto open dashboard by default
+    fun openDashboard(){
+        val fragment=DashboardFragment()
+        val transition=supportFragmentManager.beginTransaction()
+        transition.replace(R.id.frameLayout,fragment)
+        transition.commit()
+        supportActionBar?.title="Dashboard"
+        navigationView.setCheckedItem(R.id.dashboard)
+    }
+
+    //functon for back press
+    override fun onBackPressed() {
+        val frag=supportFragmentManager.findFragmentById(R.id.frameLayout)//its value is the frame that frame layout creates
+        when(frag){
+            !is DashboardFragment -> openDashboard()//when frame is not the dashboard thn open the dashboard
+            else -> super.onBackPressed()//else it wil exit the app default funtionality
+        }
     }
 }
